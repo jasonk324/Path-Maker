@@ -3,6 +3,7 @@ import Node from '../Node/Node'
 import { dijkstra, getNodesInShortestPathOrder } from '../Algorithms/dijkstra';
 import { Box } from '@mui/system';
 import { Button } from '@mui/material';
+import Slider from '@mui/material/Slider';
 import './Grid.css'
 
 const getInitialGrid = () => {
@@ -40,6 +41,24 @@ const getNewGridWithWallToggled = (grid, row, col) => {
   newGrid[row][col] = newNode;
   return newGrid;
 };
+
+function LengthSlider() {
+    return (
+      <Box 
+        width="500px"
+       >
+        <Slider
+          aria-label="Length Slider"
+          defaultValue={30}
+          valueLabelDisplay="auto"
+          step={10}
+          marks={true}
+          min={10}
+          max={110}
+        />
+      </Box>
+    );
+  };
 
 const START_NODE_ROW = 10;
 const START_NODE_COL = 15;
@@ -106,10 +125,11 @@ const Grid = () => {
   };
 
   return (
-    <Box bgcolor="#9ac8db">
+    <Box bgcolor="#e6ebff">
       <Button variant="contained" onClick={visualizeDijkstra}>
         Visualize Dijkstra's Algorithm
       </Button>
+      <LengthSlider />
       <Box className="grid">
         {grid.map((row, rowIdx) => {
           return (
