@@ -1,33 +1,36 @@
 import React from 'react';
 import './Node.css';
+import { Box } from '@mui/system';
 
 const Node = ({
-    col,
-    isFinish,
-    isStart,
-    isWall,
-    onMouseDown,
-    onMouseEnter,
-    onMouseUp,
-    row,
+  col,
+  isFinish,
+  isStart,
+  isWall,
+  onMouseDown,
+  onMouseEnter,
+  onMouseUp,
+  row,
 }) => {
-
-  const extraClassName = isFinish
+  
+  const extraClassName = isFinish 
     ? 'node-finish'
-    : isStart
-    ? 'node-start'
+    : isStart 
+    ? 'node-start' 
     : isWall
     ? 'node-wall'
     : '';
 
   return (
-    <div
+    <Box
       id={`node-${row}-${col}`}
       className={`node ${extraClassName}`}
       onMouseDown={() => onMouseDown(row, col)}
       onMouseEnter={() => onMouseEnter(row, col)}
-      onMouseUp={() => onMouseUp()}></div>
-  );
+      onMouseUp={() => onMouseUp()}
+    >
+    </Box>
+  )
 }
 
-export default Node;
+export default Node
