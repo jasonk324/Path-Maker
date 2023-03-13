@@ -1,6 +1,6 @@
 .node {
-    width: 20px;
-    height: 20px;
+    width: 10px;
+    height: 10px;
     outline: 1px solid rgb(49, 97, 134);
     display: inline-block;
   }
@@ -14,7 +14,7 @@
 }
 
 .node-wall {
-  background-color: rgb(12, 53, 71);
+  background-color: rgb(8, 35, 46);
 }
   
 .node-visited {
