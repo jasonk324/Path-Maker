@@ -28,22 +28,37 @@ const App = () => {
   const [selectedSwitch, setSelectedSwitch] = useState(4);
   const [grid, setGrid] = useState([]);
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
-  const [temp, setTemp] = useState('Let see');
 
   useEffect(() => {
-    getGridInfo()
-  }, [])
-
-  useEffect(() => {
-    const initialGrid = getInitialGrid();
-    setGrid(initialGrid);
+    getGridInfo();
   }, []);
 
+  // const getInitialGrid = () => {
+  //   let grid_new = []
+  //   let rows_amount = 50
+  //   let col_amount = 97
+  //   for (let row = 0; row < rows_amount; row++) {
+  //     const currentRow = [];
+  //     for (let col = 0; col < col_amount; col++) {
+  //       currentRow.push(createNode(col, row, 0));
+  //     }
+  //     grid_new.push(currentRow);
+  //   }
+  //   return grid_new;
+  //   };
+  
   let getGridInfo = async () => {
     let response  = await fetch(`http://127.0.0.1:8000/api/`)
     let data = await response.json();
-    console.log('DATA:', data)
-    setGrid(data)
+    let gridNew = [];
+    for (let row = 0; row < data.length; row++) {
+    const currentRow = [];
+    for (let col = 0; col < data[0].length; col++) {
+      currentRow.push(createNode(col, row, data[row][col]));
+    }
+    gridNew.push(currentRow);
+    }
+    setGrid(gridNew);
   }
 
   const handleMouseDown = (row, col) => {
@@ -99,30 +114,19 @@ const App = () => {
     return newGrid;
   };
 
-  const getInitialGrid = () => {
-    let grid_new = []
-    let rows_amount = grid.length
-    let col_amount = grid[0].length
-    for (let row = 0; row < rows_amount; row++) {
-      const currentRow = [];
-      for (let col = 0; col < col_amount; col++) {
-        currentRow.push(createNode(col, row, grid[row][col]));
-      }
-      grid_new.push(currentRow);
-    }
-    return grid_new;
-    };
-
   // const getInitialGrid = () => {
-  //   const grid = [];
-  //   for (let row = 0; row < 50; row++) {
+  //   console.log("Trying to initalize the grid")
+  //   let grid_new = []
+  //   let rows_amount = grid.length
+  //   let col_amount = grid[0].length
+  //   for (let row = 0; row < rows_amount; row++) {
   //     const currentRow = [];
-  //     for (let col = 0; col < 97; col++) {
-  //       currentRow.push(createNode(col, row));
+  //     for (let col = 0; col < col_amount; col++) {
+  //       currentRow.push(createNode(col, row, grid[row][col]));
   //     }
-  //     grid.push(currentRow);
+  //     grid_new.push(currentRow);
   //   }
-  //   return grid;
+  //   return grid_new;
   //   };
 
   // const resetGrid = () => {
@@ -142,9 +146,9 @@ const App = () => {
   //   setGrid(initialGrid);
   // }
     
-  const createNode = (col, row, isWall) => {
+  const createNode = (col, row, wall) => {
     let wallInput = false
-    if (isWall === 1) {
+    if (wall === 1) {
       wallInput = true
     } 
     return {
@@ -154,7 +158,7 @@ const App = () => {
       isFinish: row === endNode['row'] && col === endNode['col'],
       distance: Infinity,
       isVisited: false,
-      sWall: wallInput,
+      isWall: wallInput,
       previousNode: null,
     };
   };
