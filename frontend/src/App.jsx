@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import Node from './Components/Node/Node'
 import { dijkstra, getNodesInShortestPathOrder } from './Components/Algorithms/dijkstra';
 import { Box } from '@mui/system';
-import { Button } from '@mui/material';
-import Slider from '@mui/material/Slider';
+import { Button, TextField, Typography } from '@mui/material';
+import axios from 'axios';
 import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import './App.css';
 
 const switchData = [
-  { id: 1, label: 'Starting', color: '#009C07' }, 
-  { id: 2, label: 'Ending', color: '#FF0000' }, 
-  { id: 3, label: 'Checkpoint', color: '#00C5FF' }, 
-  { id: 4, label: 'Open Path', color: '#DCDCDC' }, 
-  { id: 5, label: 'Barrier', color: '#32387E' }, 
+  { id: 1, label: 'Starting', color: '#9CEE8C' }, 
+  { id: 2, label: 'Ending', color: '#EE8C8C' }, 
+  { id: 3, label: 'Open Path', color: '#DCDCDC' }, 
+  { id: 4, label: 'Barrier', color: '#8C9FEE' }, 
 ];
 
 const App = () => {
@@ -33,6 +33,42 @@ const App = () => {
     getGridInfo();
   }, []);
 
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileSelect = (event) => {
+    console.log("trying to select the file")
+    setSelectedFile(event.target.files[0]);
+    console.log(selectedFile)
+  };
+
+  const handleFormSubmit = (event) => {
+    console.log("Trying to submit the file");
+    event.preventDefault();
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+  
+    fetch("http://127.0.0.1:8000/api/upload-image/", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("PLEASE:", data);
+        let gridNew = [];
+        for (let row = 0; row < data.length; row++) {
+          const currentRow = [];
+          for (let col = 0; col < data[0].length; col++) {
+            currentRow.push(createNode(col, row, data[row][col]));
+          }
+          gridNew.push(currentRow);
+        }
+        setGrid(gridNew);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   // const getInitialGrid = () => {
   //   let grid_new = []
   //   let rows_amount = 50
@@ -48,7 +84,7 @@ const App = () => {
   //   };
   
   let getGridInfo = async () => {
-    let response  = await fetch(`http://127.0.0.1:8000/api/`)
+    let response  = await fetch(`http://127.0.0.1:8000/api/recieve-init/`)
     let data = await response.json();
     let gridNew = [];
     for (let row = 0; row < data.length; row++) {
@@ -196,6 +232,8 @@ const App = () => {
   };
 
   return (
+    <div className="container dark">
+    <div className="app">
     <Box
       display='grid'
       gap='5px'
@@ -203,48 +241,75 @@ const App = () => {
     >
       <Box
         gridColumn='span 1'
-        bgcolor='#F3D6D6'
+        bgcolor='#5F8183'
         p='15px'
         m='auto'>
-        <Box m='4px'>
-          <Button variant="contained" onClick={visualizeDijkstra}>
-              Visualize Path
+        <Box
+          borderRadius="10px"
+          bgcolor='#424242'>
+          <Typography variant='h6' fontWeight='800' textAlign='center'>PATH MAKER</Typography>
+        </Box>
+        <Typography variant='body1' fontWeight='500' textAlign="justify">
+          When interacting with the map, depending on the switch you have selected, a different color square will be placed.
+        </Typography>
+        <Box 
+          p='10px 0px 10px 55px'
+        >
+          <FormGroup
+          textAlign='center'>
+          {switchData.map((switchItem, index) => (
+            <FormControlLabel
+              key={switchItem.id}
+              control={
+                <Switch
+                  checked={selectedSwitch === index}
+                  onChange={() => handleSwitchClick(index)}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track' : {
+                      backgroundColor: switchItem.color,
+                    },
+                    '& .MuiSwitch-thumb': {
+                      backgroundColor: switchItem.color,
+                    },
+                    '& .MuiSwitch-track': {
+                      backgroundColor: switchItem.color,
+                    },
+                  }}
+                />
+              }
+              label={switchItem.label}
+            />
+            ))}
+          </FormGroup>
+        </Box>
+        <Box
+        p='10px'>
+          <Typography variant='body1' fontWeight='500' textAlign="center">
+            Insert and Upload a Map
+          </Typography>
+          <form onSubmit={handleFormSubmit}>
+            <TextField
+              type="file"
+              // label="Select an image file"
+              onChange={handleFileSelect}
+              hidden
+            />
+            <Box ml='55px' mt='10px'>
+              <Button type="submit" variant="contained" color='info'>
+                Upload
+              </Button>
+            </Box>
+          </form>
+        </Box>
+        <Box ml='40px'>
+          <Button variant="contained" onClick={visualizeDijkstra} color='success'>
+            Visualize Path
           </Button>
         </Box>
-        <FormGroup>
-        {switchData.map((switchItem, index) => (
-          <FormControlLabel
-            key={switchItem.id}
-            control={
-              <Switch
-                checked={selectedSwitch === index}
-                onChange={() => handleSwitchClick(index)}
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track' : {
-                    backgroundColor: switchItem.color,
-                  },
-                  '& .MuiSwitch-thumb': {
-                    backgroundColor: switchItem.color,
-                  },
-                  '& .MuiSwitch-track': {
-                    backgroundColor: switchItem.color,
-                  },
-                }}
-              />
-            }
-            label={switchItem.label}
-          />
-          ))}
-        </FormGroup>
-        {/* <Box m='4px' justifyContent='center'>
-          <Button variant="contained" onClick={resetGrid}>
-              Reset Grid
-          </Button>
-        </Box> */}
       </Box>
       <Box 
         gridColumn='span 4'
-        bgcolor='#EFD8FF'
+        bgcolor='#C6DBDD'
         p='15px'
         m='auto'
       >
@@ -272,6 +337,8 @@ const App = () => {
         })}
       </Box>
     </Box>
+    </div>
+    </div>
   )
 }
 
