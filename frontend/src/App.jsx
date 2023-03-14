@@ -25,7 +25,7 @@ const App = () => {
 
   const [startNode, setStartNode] = useState({row:initStartRow, col:initStartCol})
   const [endNode, setEndNode] = useState({row:initEndRow, col:initEndCol})
-  const [selectedSwitch, setSelectedSwitch] = useState(4);
+  const [selectedSwitch, setSelectedSwitch] = useState(3);
   const [grid, setGrid] = useState([]);
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
 
