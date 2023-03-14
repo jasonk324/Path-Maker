@@ -28,11 +28,23 @@ const App = () => {
   const [selectedSwitch, setSelectedSwitch] = useState(4);
   const [grid, setGrid] = useState([]);
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
+  const [temp, setTemp] = useState('Let see');
+
+  useEffect(() => {
+    getGridInfo()
+  }, [])
 
   useEffect(() => {
     const initialGrid = getInitialGrid();
     setGrid(initialGrid);
   }, []);
+
+  let getGridInfo = async () => {
+    let response  = await fetch(`http://127.0.0.1:8000/api/`)
+    let data = await response.json();
+    console.log('DATA:', data)
+    setGrid(data)
+  }
 
   const handleMouseDown = (row, col) => {
     const newGrid = getNewGrid(grid, row, col);
@@ -87,24 +99,31 @@ const App = () => {
     return newGrid;
   };
 
-  // let getGrid = async () => {
-  //   let response  = await fetch(`http://127.0.0.1:8000/api/`)
-  //   let data = await response.json();
-  //   console.log('DATA:', data)
-  //   setGrid(data)
-  // }
-
   const getInitialGrid = () => {
-    const grid = [];
-    for (let row = 0; row < 30; row++) {
+    let grid_new = []
+    let rows_amount = grid.length
+    let col_amount = grid[0].length
+    for (let row = 0; row < rows_amount; row++) {
       const currentRow = [];
-      for (let col = 0; col < 97; col++) {
-        currentRow.push(createNode(col, row));
+      for (let col = 0; col < col_amount; col++) {
+        currentRow.push(createNode(col, row, grid[row][col]));
       }
-      grid.push(currentRow);
+      grid_new.push(currentRow);
     }
-    return grid;
+    return grid_new;
     };
+
+  // const getInitialGrid = () => {
+  //   const grid = [];
+  //   for (let row = 0; row < 50; row++) {
+  //     const currentRow = [];
+  //     for (let col = 0; col < 97; col++) {
+  //       currentRow.push(createNode(col, row));
+  //     }
+  //     grid.push(currentRow);
+  //   }
+  //   return grid;
+  //   };
 
   // const resetGrid = () => {
   //   for (let row = 0; row < 30; row++) {
@@ -123,8 +142,11 @@ const App = () => {
   //   setGrid(initialGrid);
   // }
     
-  const createNode = (col, row) => {
-    console.log(startNode['row'])
+  const createNode = (col, row, isWall) => {
+    let wallInput = false
+    if (isWall === 1) {
+      wallInput = true
+    } 
     return {
       col,
       row,
@@ -132,7 +154,7 @@ const App = () => {
       isFinish: row === endNode['row'] && col === endNode['col'],
       distance: Infinity,
       isVisited: false,
-      sWall: false,
+      sWall: wallInput,
       previousNode: null,
     };
   };
@@ -142,13 +164,13 @@ const App = () => {
       if (i === visitedNodesInOrder.length) {
         setTimeout(() => {
           animateShortestPath(nodesInShortestPathOrder);
-        }, 10 * i);
+        }, 5 * i);
         return;
       }
       setTimeout(() => {
         const node = visitedNodesInOrder[i];
         document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
-      }, 10 * i);
+      }, 5 * i);
     }
   };
 
@@ -157,7 +179,7 @@ const App = () => {
       setTimeout(() => {
         const node = nodesInShortestPathOrder[i];
         document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-shortest-path';
-      }, 50 * i);
+      }, 25 * i);
     }
   };
 
@@ -175,35 +197,6 @@ const App = () => {
       gap='5px'
       gridTemplateColumns='repeat(5, 1fr)'
     >
-      <Box 
-        gridColumn='span 4'
-        bgcolor='#EFD8FF'
-        p='15px'
-        m='auto'
-      >
-        {grid.map((row, rowIdx) => {
-          return (
-            <Box key={rowIdx} display='flex'>
-              {row.map((node, nodeIdx) => {
-                const {row, col, isFinish, isStart, isWall} = node;
-                return (
-                  <Node
-                    key={nodeIdx}
-                    col={col}
-                    isFinish={isFinish}
-                    isStart={isStart}
-                    isWall={isWall}
-                    mouseIsPressed={mouseIsPressed}
-                    onMouseDown={() => handleMouseDown(row, col)}
-                    onMouseEnter={() => handleMouseEnter(row, col)}
-                    onMouseUp={handleMouseUp}
-                    row={row}></Node>
-                  );
-                  })}
-            </Box>
-          );
-        })}
-      </Box>
       <Box
         gridColumn='span 1'
         bgcolor='#F3D6D6'
@@ -244,6 +237,35 @@ const App = () => {
               Reset Grid
           </Button>
         </Box> */}
+      </Box>
+      <Box 
+        gridColumn='span 4'
+        bgcolor='#EFD8FF'
+        p='15px'
+        m='auto'
+      >
+        {grid.map((row, rowIdx) => {
+          return (
+            <Box key={rowIdx} display='flex'>
+              {row.map((node, nodeIdx) => {
+                const {row, col, isFinish, isStart, isWall} = node;
+                return (
+                  <Node
+                    key={nodeIdx}
+                    col={col}
+                    isFinish={isFinish}
+                    isStart={isStart}
+                    isWall={isWall}
+                    mouseIsPressed={mouseIsPressed}
+                    onMouseDown={() => handleMouseDown(row, col)}
+                    onMouseEnter={() => handleMouseEnter(row, col)}
+                    onMouseUp={handleMouseUp}
+                    row={row}></Node>
+                  );
+                  })}
+            </Box>
+          );
+        })}
       </Box>
     </Box>
   )
